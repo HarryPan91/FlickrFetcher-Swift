@@ -11,13 +11,15 @@ import UIKit
 class PhotoNameTableViewController: UITableViewController {
 
     let model = FlickrModel()
-    let spinner = UIActivityIndicatorView.init(frame: CGRectMake(0, 0, 50, 50))
+    // REVIEW: For `UIView`, you can try to use `lazy` to make them load on request
+    lazy var spinner = UIActivityIndicatorView.init(frame: CGRectMake(0, 0, 50, 50))
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         self.title = "FlickrFetcher"
 
+        // REVIEW: Remove useless comment to make the code more readable.
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -27,13 +29,18 @@ class PhotoNameTableViewController: UITableViewController {
         spinner.activityIndicatorViewStyle = .Gray
         spinner.hidesWhenStopped = true
         spinner.startAnimating()
+        // REVIEW: When do you remove the spinner from the window??
+        // just hidden...
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         spinner.center = CGPointMake(UIScreen.mainScreen().bounds.size.width / 2, UIScreen.mainScreen().bounds.size.height / 2)
         appDelegate.window?.addSubview(spinner)
 
+        // REVIEW: When do you remove the observer??
         NSNotificationCenter.defaultCenter().addObserverForName(FlickrInfoDownloaded, object: nil, queue: nil) { (note: NSNotification) -> Void in
             self.tableView.reloadData()
             self.spinner.stopAnimating()
+            self.spinner.removeFromSuperview()
+            NSNotificationCenter.defaultCenter().removeObserver(self)
         }
     }
 
@@ -47,7 +54,7 @@ class PhotoNameTableViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return model.photographer.count
+        return model.photographers.count
     }
 
 
@@ -55,10 +62,10 @@ class PhotoNameTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCellWithIdentifier("PhotographerCell", forIndexPath: indexPath)
 
         // Configure the cell...
-        let photographerNames = Array(model.photographer.keys)
+        // REVIEW: Should be an array of `Photographer` object  ???
+        let photographerNames = Array(model.photographers.keys)
         cell.textLabel!.text = "Owner: \(photographerNames[indexPath.row])"
-        cell.detailTextLabel!.text = "have \(model.photographer[photographerNames[indexPath.row]]!.count) photos"
-
+        cell.detailTextLabel!.text = "have \(model.photographers[photographerNames[indexPath.row]]!.count) photos"
 
         return cell
     }
@@ -119,9 +126,9 @@ class PhotoNameTableViewController: UITableViewController {
         if segue.identifier == "ShowPhotosSegue" {
             if segue.destinationViewController.isKindOfClass(PhotosCollectionViewController) {
                 let photosView = segue.destinationViewController as! PhotosCollectionViewController
-                let photographerNames = Array(model.photographer.keys)
+                let photographerNames = Array(model.photographers.keys)
                 photosView.title = "\(photographerNames[tableView.indexPathForSelectedRow!.row])'s Job"
-                photosView.photos = model.photographer[photographerNames[tableView.indexPathForSelectedRow!.row]]!
+                photosView.photos = model.photographers[photographerNames[tableView.indexPathForSelectedRow!.row]]!
             }
         }
 

@@ -14,35 +14,16 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
 
     var photos = [Photo]() {
         didSet {
-            beginDownloadImages()
-        }
-    }
-
-    var thumbnailImages = [UIImage]()
-
-    func beginDownloadImages() {
-        for var photoInfo in photos {
-            downloadImage(photoInfo.thumbnailURL, usingBlock: { (image) -> Void in
+            FlickrModel.beginDownloadImages(photos) { (image, imageURL) -> Void in
+                self.imageURLs.append(imageURL!)
                 self.thumbnailImages.append(image!)
                 self.collectionView?.reloadData()
-            })
-        }
-    }
-
-    func getDataFromUrl(url:NSURL, completion: ((data: NSData?, response: NSURLResponse?, error: NSError? ) -> Void)) {
-        NSURLSession.sharedSession().dataTaskWithURL(url) { (data, response, error) in
-            completion(data: data, response: response, error: error)
-            }.resume()
-    }
-
-    func downloadImage(url: NSURL, usingBlock: (UIImage?) -> Void) {
-        getDataFromUrl(url) { (data, response, error)  in
-            dispatch_async(dispatch_get_main_queue()) { () -> Void in
-                guard let data = data where error == nil else { return }
-                usingBlock(UIImage(data: data))
             }
         }
     }
+
+    var imageURLs = [NSURL]()
+    var thumbnailImages = [UIImage]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -86,6 +67,7 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
 
         // Configure the cell
         cell.imageView.image = thumbnailImages[indexPath.row]
+        cell.imageURL = imageURLs[indexPath.row]
 
         return cell
     }
@@ -99,7 +81,8 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
     }
 
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAtIndex section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 20.0, left: 10.0, bottom: 20.0, right: 10.0)
+        // REVIEW: No need to write `.0`, it will be auto translate into CGFloat.
+        return UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
     }
 
     // MARK: UICollectionViewDelegate
@@ -141,11 +124,10 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
         // Pass the selected object to the new view controller.
 
         if segue.identifier == "ShowImageSegue" {
-            if segue.destinationViewController.isKindOfClass(ImageViewController) {
-                let imageVC = segue.destinationViewController as! ImageViewController
-                let index = collectionView?.indexPathForCell(sender as! FlickrPhotoCollectionViewCell)?.row
-                imageVC.title = "\(thumbnailImages.count) Photos"
-                downloadImage(photos[index!].imageURL, usingBlock: { (image) -> Void in
+            // REVIEW: You can use `segue.destinationViewController as? ImageViewController` instead
+            //         of using `isKindOfClass()`
+            if let imageVC = segue.destinationViewController as? ImageViewController {
+                FlickrModel.downloadImage((sender as! FlickrPhotoCollectionViewCell).imageURL!, usingBlock: { (image) -> Void in
                     imageVC.image = image!
                 })
             }

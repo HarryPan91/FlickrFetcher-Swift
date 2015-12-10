@@ -12,5 +12,7 @@ class FlickrPhotoCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var imageView: UIImageView!
 
+    var imageURL: NSURL?
+
     
 }
