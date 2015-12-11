@@ -100,7 +100,7 @@ class FlickrFetcher {
 
     // REVIEW: Just use [String: AnyObject] instead of Dictionary<String, AnyObject>,
     //         or use a Photo struct/class may be better
-    class func urlStringForPhoto(photo: [String: AnyObject], format: FlickrPhotoFormat) -> String? {
+    class func URLStringForPhoto(photo: [String: AnyObject], format: FlickrPhotoFormat) -> String? {
         let farm = photo["farm"]
         let server = photo["server"]
         let photo_id = photo["id"]
@@ -122,10 +122,10 @@ class FlickrFetcher {
     }
 
     class func URLforPhoto(photo: [String: AnyObject],format: FlickrPhotoFormat) -> NSURL? {
-        guard let url =  urlStringForPhoto(photo, format: format) else {
+        guard let URL =  URLStringForPhoto(photo, format: format) else {
             return nil
         }
-        return NSURL.init(string: url)
+        return NSURL.init(string: URL)
     }
 
     class func URLforInformationAboutPlace(flickrPlaceId: AnyObject) -> NSURL? {

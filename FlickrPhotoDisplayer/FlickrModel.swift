@@ -49,8 +49,8 @@ class FlickrModel {
     }
 
 
-    private func flickrPhotosAtURL(url: NSURL) -> [[String: AnyObject]]? {
-        guard let flickrJSONData = NSData(contentsOfURL: url) else {
+    private func flickrPhotosAtURL(URL: NSURL) -> [[String: AnyObject]]? {
+        guard let flickrJSONData = NSData(contentsOfURL: URL) else {
             return nil
         }
         var jsonResult: [String: AnyObject]

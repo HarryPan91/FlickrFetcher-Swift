@@ -120,11 +120,11 @@ class PhotoNameTableViewController: UITableViewController {
                 let photographer = model.photographers[tableView.indexPathForSelectedRow!.row]
                 photosView.title = "\(photographer.name)'s Job"
                 photosView.photos = photographer.photos
-                let photographerName = ImageDownloader.imageCacher.objectForKey(photographer.name)
-                if photographerName == nil {
-                    ImageDownloader.imageCacher.removeAllObjects()
-                    ImageDownloader.imageCacher.setObject(photographer.name, forKey: photographer.name)
-                }
+//                let photographerName = ImageDownloader.imageCacher.objectForKey(photographer.name)
+//                if photographerName == nil {
+//                    ImageDownloader.imageCacher.removeAllObjects()
+//                    ImageDownloader.imageCacher.setObject(photographer.name, forKey: photographer.name)
+//                }
             }
         }
     }
