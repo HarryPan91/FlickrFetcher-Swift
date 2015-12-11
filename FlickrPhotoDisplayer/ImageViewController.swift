@@ -22,7 +22,7 @@ class ImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         ImageDownloader.downloadImage(imageURL, usingBlock: { (image) -> Void in
-            self.imageView.image = image!
+            self.imageView.image = image
         })
     }
 

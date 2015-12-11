@@ -50,19 +50,19 @@ class FlickrModel {
 
 
     private func flickrPhotosAtURL(url: NSURL) -> [[String: AnyObject]]? {
-        let flickrJSONData = NSData.init(contentsOfURL: url)
-        guard flickrJSONData != nil else {
+        guard let flickrJSONData = NSData(contentsOfURL: url) else {
             return nil
         }
+        var jsonResult: [String: AnyObject]
         do {
-            let jsonResult = try NSJSONSerialization.JSONObjectWithData(flickrJSONData!, options: []) as! [String: AnyObject]
-            let photos = jsonResult["photos"]!
-            // REVIEW: Please use `[[String: AnyObject]]` instead of `Array<[String: AnyObject]>`
-            return photos["photo"] as? [[String: AnyObject]]
+            jsonResult = try NSJSONSerialization.JSONObjectWithData(flickrJSONData, options: []) as! [String: AnyObject]
         } catch let e as NSError {
             print("\(e)")
+            return nil
         }
-        return nil
+        // REVIEW: Please use `[[String: AnyObject]]` instead of `Array<[String: AnyObject]>`
+        let photos = jsonResult["photos"]!
+        return photos["photo"] as? [[String: AnyObject]]
     }
 
     private func loadImagesFromFlickrArray(photos: [[String: AnyObject]]) {
@@ -70,7 +70,7 @@ class FlickrModel {
             // REVIEW: Too many `if let`, please use `guard let` instead.
 
             guard let photographer = photo[FlickrFetcher.Constants.FLICKR_PHOTO_OWNER] as? String, let newPhoto = Photo(photo: photo) else {
-                    return
+                    continue
             }
 
             let filteredPhotographers = photographers.filter() { $0.name == photographer }

@@ -12,6 +12,8 @@ import UIKit
 class ImageDownloader {
     // REVIEW: Please group the methods in a certain area
 
+    static let imageCacher = NSCache()
+
     class func beginDownloadImages(photos: [Photo], usingBlock: (UIImage?, NSURL?) -> Void) {
         // REVIEW: If no change in var, use let or empty it in this case.
         for photoInfo in photos {
@@ -28,12 +30,17 @@ class ImageDownloader {
     }
 
     class func downloadImage(url: NSURL, usingBlock: (UIImage?) -> Void) {
-        getDataFromUrl(url) { (data, response, error)  in
-            dispatch_async(dispatch_get_main_queue()) { () -> Void in
-                guard let data = data where error == nil else {
-                    return
+        if let image = imageCacher.objectForKey(url.absoluteString) {
+            usingBlock((image as! UIImage))
+        } else {
+            getDataFromUrl(url) { (data, response, error)  in
+                dispatch_async(dispatch_get_main_queue()) { () -> Void in
+                    guard let data = data where error == nil, let image = UIImage(data: data) else {
+                        return
+                    }
+                    imageCacher.setObject(image, forKey: url.absoluteString)
+                    usingBlock(image)
                 }
-                usingBlock(UIImage(data: data))
             }
         }
     }

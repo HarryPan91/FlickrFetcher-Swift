@@ -18,6 +18,6 @@ struct Photographer: Equatable {
     }
 }
 
-func == (lhs:Photographer, rhs:Photographer) -> Bool {
+func == (lhs: Photographer, rhs: Photographer) -> Bool {
     return lhs.name == rhs.name
 }
