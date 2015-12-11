@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4ACFB8FD1C198324005E7695 /* ImageDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ACFB8FC1C198324005E7695 /* ImageDownloader.swift */; };
+		4ACFB9001C1985C8005E7695 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ACFB8FF1C1985C8005E7695 /* Photo.swift */; };
+		4ACFB9021C1985DC005E7695 /* Photographer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ACFB9011C1985DC005E7695 /* Photographer.swift */; };
 		4AFC2E3A1C0F0A2000B78DAA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFC2E391C0F0A2000B78DAA /* AppDelegate.swift */; };
 		4AFC2E3F1C0F0A2000B78DAA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4AFC2E3D1C0F0A2000B78DAA /* Main.storyboard */; };
 		4AFC2E411C0F0A2000B78DAA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4AFC2E401C0F0A2000B78DAA /* Assets.xcassets */; };
@@ -40,6 +43,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4ACFB8FC1C198324005E7695 /* ImageDownloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageDownloader.swift; sourceTree = "<group>"; };
+		4ACFB8FF1C1985C8005E7695 /* Photo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
+		4ACFB9011C1985DC005E7695 /* Photographer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Photographer.swift; sourceTree = "<group>"; };
 		4AFC2E361C0F0A2000B78DAA /* FlickrPhotoDisplayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlickrPhotoDisplayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AFC2E391C0F0A2000B78DAA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4AFC2E3E1C0F0A2000B78DAA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -88,10 +94,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4ACFB8FE1C1985A3005E7695 /* FlickrModel */ = {
+			isa = PBXGroup;
+			children = (
+				4AFC2E6D1C1049D300B78DAA /* FlickrModel.swift */,
+				4ACFB8FF1C1985C8005E7695 /* Photo.swift */,
+				4ACFB9011C1985DC005E7695 /* Photographer.swift */,
+			);
+			name = FlickrModel;
+			path = FlickrPhotoDisplayer;
+			sourceTree = "<group>";
+		};
 		4AFC2E2D1C0F0A2000B78DAA = {
 			isa = PBXGroup;
 			children = (
 				4AFC2E381C0F0A2000B78DAA /* FlickrPhotoDisplayer */,
+				4ACFB8FE1C1985A3005E7695 /* FlickrModel */,
 				4AFC2E6C1C0F0A4800B78DAA /* FlickrFetcher */,
 				4AFC2E4D1C0F0A2000B78DAA /* FlickrPhotoDisplayerTests */,
 				4AFC2E581C0F0A2000B78DAA /* FlickrPhotoDisplayerUITests */,
@@ -113,7 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				4AFC2E391C0F0A2000B78DAA /* AppDelegate.swift */,
-				4AFC2E6D1C1049D300B78DAA /* FlickrModel.swift */,
+				4ACFB8FC1C198324005E7695 /* ImageDownloader.swift */,
 				4AFC2E711C10527E00B78DAA /* PhotoNameTableViewController.swift */,
 				4AFC2E7B1C11412D00B78DAA /* PhotosCollectionViewController.swift */,
 				4AFC2E7D1C11582300B78DAA /* FlickrPhotoCollectionViewCell.swift */,
@@ -290,10 +308,13 @@
 				4AFC2E6B1C0F0A3B00B78DAA /* FlickrFetcher.m in Sources */,
 				4AFC2E801C117E8700B78DAA /* FlickrFetcher.swift in Sources */,
 				4AFC2E741C10571E00B78DAA /* ImageViewController.swift in Sources */,
+				4ACFB9001C1985C8005E7695 /* Photo.swift in Sources */,
 				4AFC2E7C1C11412D00B78DAA /* PhotosCollectionViewController.swift in Sources */,
 				4AFC2E721C10527E00B78DAA /* PhotoNameTableViewController.swift in Sources */,
 				4AFC2E7E1C11582300B78DAA /* FlickrPhotoCollectionViewCell.swift in Sources */,
+				4ACFB8FD1C198324005E7695 /* ImageDownloader.swift in Sources */,
 				4AFC2E3A1C0F0A2000B78DAA /* AppDelegate.swift in Sources */,
+				4ACFB9021C1985DC005E7695 /* Photographer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -525,6 +546,7 @@
 				4AFC2E601C0F0A2000B78DAA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		4AFC2E611C0F0A2000B78DAA /* Build configuration list for PBXNativeTarget "FlickrPhotoDisplayerTests" */ = {
 			isa = XCConfigurationList;
@@ -533,6 +555,7 @@
 				4AFC2E631C0F0A2000B78DAA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		4AFC2E641C0F0A2000B78DAA /* Build configuration list for PBXNativeTarget "FlickrPhotoDisplayerUITests" */ = {
 			isa = XCConfigurationList;
@@ -541,6 +564,7 @@
 				4AFC2E661C0F0A2000B78DAA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

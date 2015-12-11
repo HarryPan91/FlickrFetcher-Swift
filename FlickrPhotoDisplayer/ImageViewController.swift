@@ -12,18 +12,18 @@ class ImageViewController: UIViewController {
 
     @IBOutlet weak var imageView: UIImageView!
     
-    var image = UIImage.init() {
+    var imageURL = NSURL() {
         didSet {
             // REVIEW: You can write `imageView?.image = image` instead to make it optional again.
-            imageView?.image = image
         }
     }
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        imageView.image = image
+        ImageDownloader.downloadImage(imageURL, usingBlock: { (image) -> Void in
+            self.imageView.image = image!
+        })
     }
 
     /*

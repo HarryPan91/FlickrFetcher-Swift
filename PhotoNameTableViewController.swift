@@ -63,9 +63,9 @@ class PhotoNameTableViewController: UITableViewController {
 
         // Configure the cell...
         // REVIEW: Should be an array of `Photographer` object  ???
-        let photographerNames = Array(model.photographers.keys)
-        cell.textLabel!.text = "Owner: \(photographerNames[indexPath.row])"
-        cell.detailTextLabel!.text = "have \(model.photographers[photographerNames[indexPath.row]]!.count) photos"
+        let photographer = model.photographers[indexPath.row]
+        cell.textLabel!.text = "Owner: \(photographer.name)"
+        cell.detailTextLabel!.text = "have \(photographer.photos.count) photos"
 
         return cell
     }
@@ -114,21 +114,12 @@ class PhotoNameTableViewController: UITableViewController {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
 
-//        if segue.identifier == "ShowImageSegue" {
-//            if segue.destinationViewController.isKindOfClass(ImageViewController) {
-//                let imageVC = segue.destinationViewController as! ImageViewController
-//                downloadImage(model.photos[(tableView.indexPathForSelectedRow?.row)!].imageURL, usingBlock: { (image) -> Void in
-//                    imageVC.image = image!
-//                })
-//            }
-//        }
-
         if segue.identifier == "ShowPhotosSegue" {
             if segue.destinationViewController.isKindOfClass(PhotosCollectionViewController) {
                 let photosView = segue.destinationViewController as! PhotosCollectionViewController
-                let photographerNames = Array(model.photographers.keys)
-                photosView.title = "\(photographerNames[tableView.indexPathForSelectedRow!.row])'s Job"
-                photosView.photos = model.photographers[photographerNames[tableView.indexPathForSelectedRow!.row]]!
+                let photographer = model.photographers[tableView.indexPathForSelectedRow!.row]
+                photosView.title = "\(photographer.name)'s Job"
+                photosView.photos = photographer.photos
             }
         }
 

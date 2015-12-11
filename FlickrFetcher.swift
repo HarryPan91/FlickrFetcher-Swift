@@ -78,7 +78,7 @@ class FlickrFetcher {
 
     // REVIEW: The URL prefix are all the same in `"https://api.flickr.com/services/rest/"`,
     //         why not make them in this function?
-    //         Besides, how do you make sure the `query` parameter has `"?"` already?  ???
+    //         Besides, how do you make sure the `query` parameter has `"?"` already?
     class func URLForQuery(query: String) -> NSURL? {
         var q = "https://api.flickr.com/services/rest/?\(query)&format=json&nojsoncallback=1&api_key=\(Constants.FlickrAPIKey)"
         q = q.stringByAddingPercentEncodingWithAllowedCharacters(.URLQueryAllowedCharacterSet())!

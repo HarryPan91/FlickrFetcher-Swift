@@ -14,7 +14,7 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
 
     var photos = [Photo]() {
         didSet {
-            FlickrModel.beginDownloadImages(photos) { (image, imageURL) -> Void in
+            ImageDownloader.beginDownloadImages(photos) { (image, imageURL) -> Void in
                 self.imageURLs.append(imageURL!)
                 self.thumbnailImages.append(image!)
                 self.collectionView?.reloadData()
@@ -127,9 +127,7 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
             // REVIEW: You can use `segue.destinationViewController as? ImageViewController` instead
             //         of using `isKindOfClass()`
             if let imageVC = segue.destinationViewController as? ImageViewController {
-                FlickrModel.downloadImage((sender as! FlickrPhotoCollectionViewCell).imageURL!, usingBlock: { (image) -> Void in
-                    imageVC.image = image!
-                })
+                imageVC.imageURL = (sender as! FlickrPhotoCollectionViewCell).imageURL!
             }
         }
 

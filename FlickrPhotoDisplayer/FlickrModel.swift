@@ -7,33 +7,16 @@
 //
 
 import Foundation
-import UIKit
 
 let FlickrInfoDownloaded = "FlickrInfoDownloadComplete"
 let FlickrPhoto = "FlickrPhoto"
 
-struct Photo {
-    var unique: String
-    var title: String
-    var subtitle: String
-    var imageURL: NSURL
-    var thumbnailURL: NSURL
-    var owner: String
 
-    init(unique: String, title: String, subtitle: String?, owner: String, thumbnailURL: NSURL, imageURL: NSURL) {
-        // REVIEW: Just ues `self.subtitle = subtitle ?? "NO SUBTITLE"` is enough
-
-        self.subtitle = subtitle ?? "NO SUBTITLE"
-
-        self.unique = unique
-        if title == "" {
-            self.title = "NO TITLE"
-        } else {
-            self.title = title
+extension Array where Element: Equatable{
+    mutating func removeObject(object: Element) {
+        if let index = self.indexOf(object) {
+            self.removeAtIndex(index)
         }
-        self.imageURL = imageURL
-        self.thumbnailURL = thumbnailURL
-        self.owner = owner
     }
 }
 
@@ -42,8 +25,7 @@ struct Photo {
 class FlickrModel {
 
     // REVIEW: If photographer is an array, please use plural.
-    var photographers = [String: [Photo]]()
-    
+    var photographers = [Photographer]()
 
     init() {
         fetch()
@@ -67,7 +49,7 @@ class FlickrModel {
     }
 
 
-    private func flickrPhotosAtURL(url: NSURL) -> Array<[String: AnyObject]>? {
+    private func flickrPhotosAtURL(url: NSURL) -> [[String: AnyObject]]? {
         let flickrJSONData = NSData.init(contentsOfURL: url)
         guard flickrJSONData != nil else {
             return nil
@@ -83,55 +65,25 @@ class FlickrModel {
         return nil
     }
 
-    private func loadImagesFromFlickrArray(photos: Array<[String: AnyObject]>) {
+    private func loadImagesFromFlickrArray(photos: [[String: AnyObject]]) {
         for photo in photos {
             // REVIEW: Too many `if let`, please use `guard let` instead.
 
-            guard let unique = photo[FlickrFetcher.Constants.FLICKR_PHOTO_ID] as? String,
-                title = photo[FlickrFetcher.Constants.FLICKR_PHOTO_TITLE] as? String,
-                imageURL = FlickrFetcher.URLforPhoto(photo, format: .Large),
-                thumbnailURL = FlickrFetcher.URLforPhoto(photo, format: .Square),
-                photographer = photo[FlickrFetcher.Constants.FLICKR_PHOTO_OWNER] as? String else {
+            guard let photographer = photo[FlickrFetcher.Constants.FLICKR_PHOTO_OWNER] as? String, let newPhoto = Photo(photo: photo) else {
                     return
             }
 
-            if var photosBelongsTo = self.photographers[photographer] {
-                photosBelongsTo.append(Photo.init(unique: unique, title: title, subtitle: photo[FlickrFetcher.Constants.FLICKR_PHOTO_DESCRIPTION] as? String, owner: photographer, thumbnailURL: thumbnailURL, imageURL: imageURL))
-                self.photographers[photographer] = photosBelongsTo
-            } else {
-                self.photographers[photographer] = [Photo.init(unique: unique, title: title, subtitle: photo[FlickrFetcher.Constants.FLICKR_PHOTO_DESCRIPTION] as? String, owner: photographer, thumbnailURL: thumbnailURL, imageURL: imageURL)]
+            let filteredPhotographers = photographers.filter() { $0.name == photographer }
+
+            guard var photosBelongsTo = filteredPhotographers.first?.photos where photosBelongsTo.count > 0 else {
+                photographers.append(Photographer(name: photographer, photos: [newPhoto]))
+                continue
             }
+            photographers.removeObject(filteredPhotographers.first!)
+            photosBelongsTo.append(newPhoto)
+            photographers.append(Photographer(name: photographer, photos: photosBelongsTo))
+
         }
         NSNotificationCenter.defaultCenter().postNotificationName(FlickrInfoDownloaded, object: self)
     }
-
-
-    // REVIEW: Please group the methods in a certain area
-
-    class func beginDownloadImages(photos: [Photo], usingBlock: (UIImage?, NSURL?) -> Void) {
-        // REVIEW: If no change in var, use let or empty it in this case.
-        for photoInfo in photos {
-            downloadImage(photoInfo.thumbnailURL, usingBlock: { (image) -> Void in
-                usingBlock(image, photoInfo.imageURL)
-            })
-        }
-    }
-
-    class func getDataFromUrl(url:NSURL, completion: ((data: NSData?, response: NSURLResponse?, error: NSError? ) -> Void)) {
-        NSURLSession.sharedSession().dataTaskWithURL(url) { (data, response, error) in
-            completion(data: data, response: response, error: error)
-            }.resume()
-    }
-
-    class func downloadImage(url: NSURL, usingBlock: (UIImage?) -> Void) {
-        getDataFromUrl(url) { (data, response, error)  in
-            dispatch_async(dispatch_get_main_queue()) { () -> Void in
-                guard let data = data where error == nil else {
-                    return
-                }
-                usingBlock(UIImage(data: data))
-            }
-        }
-    }
-
 }
