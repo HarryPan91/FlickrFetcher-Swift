@@ -80,9 +80,17 @@ class FlickrFetcher {
     //         why not make them in this function?
     //         Besides, how do you make sure the `query` parameter has `"?"` already?
     class func URLForQuery(query: String) -> NSURL? {
+        let components = NSURLComponents()
+        components.scheme = "https"
+        components.host = "api.flickr.com"
+        components.path = "/services/rest/?\(query)"
+        components.queryItems = [NSURLQueryItem(name: "format", value: "json"), NSURLQueryItem(name: "nojsoncallback", value: "1"), NSURLQueryItem(name: "api_key", value: Constants.FlickrAPIKey)]
         var q = "https://api.flickr.com/services/rest/?\(query)&format=json&nojsoncallback=1&api_key=\(Constants.FlickrAPIKey)"
         q = q.stringByAddingPercentEncodingWithAllowedCharacters(.URLQueryAllowedCharacterSet())!
         // REVIEW: no Need to write `init`, just use `NSURL(string: q)`
+        print(components.URL?.absoluteString)
+        print(q)
+//        return components.URL
         return NSURL(string: q)
     }
 
