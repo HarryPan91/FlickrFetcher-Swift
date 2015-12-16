@@ -24,57 +24,46 @@ extension Array where Element: Equatable{
 // prepare(fetch) the data for controllers
 class FlickrModel {
     // REVIEW: If photographer is an array, please use plural.
-    var photographers = [Photographer]()
-    var mySession = NSURLSession.self
+    private var photographers = [Photographer]()
+    var session = NSURLSession.sharedSession()
 
-    init() {
-        fetch()
-    }
+//    init() {
+//        fetch(){}
+//    }
 
-    func fetch() {
-        let session = mySession.sharedSession()
+    func fetch(completion: ([Photographer]) -> Void) {
+
+        print(FlickrFetcher.URLforRecentGeoreferencedPhotos()!)
         let request = NSURLRequest(URL: FlickrFetcher.URLforRecentGeoreferencedPhotos()!)
-//        let task = session.downloadTaskWithRequest(request) { (localFile, response, error) -> Void in
-//            if let e = error {
-//                print("Flickr background fetch failed: \(e.localizedDescription)")
-//            } else {
-//                if let photos = self.flickrPhotosAtURL(localFile!) {
-//                    self.loadImagesFromFlickrArray(photos)
-//                }
-//            }
-//        }
-        let task = session.dataTaskWithRequest(request) { (flickrJSONData, response, error) -> Void in
+        let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
             var jsonResult: [String: AnyObject]?
+            guard let flickrJSONData = data where error == nil else {
+                return
+            }
             do {
-                jsonResult = try NSJSONSerialization.JSONObjectWithData(flickrJSONData!, options: []) as? [String: AnyObject]
+                jsonResult = try NSJSONSerialization.JSONObjectWithData(flickrJSONData, options: []) as? [String: AnyObject]
             } catch let e as NSError {
                 print("Flickr fetch failed: \(e)")
+                self.photographers = [Photographer]()
+                completion(self.photographers)
+                return
             }
             // REVIEW: Please use `[[String: AnyObject]]` instead of `Array<[String: AnyObject]>`
-            let photos = jsonResult!["photos"]!
+            guard let photos = jsonResult?["photos"] else {
+                return
+            }
             if let p = photos["photo"] as? [[String: AnyObject]] {
                 self.loadImagesFromFlickrArray(p)
             }
+            completion(self.photographers)
         }
         task.resume()
     }
 
-
-//    func flickrPhotosAtURL(URL: NSURL) -> [[String: AnyObject]]? {
-//        guard let flickrJSONData = NSData(contentsOfURL: URL) else {
-//            return nil
-//        }
-//        var jsonResult: [String: AnyObject]
-//        do {
-//            jsonResult = try NSJSONSerialization.JSONObjectWithData(flickrJSONData, options: []) as! [String: AnyObject]
-//        } catch let e as NSError {
-//            print("\(e)")
-//            return nil
-//        }
-//        // REVIEW: Please use `[[String: AnyObject]]` instead of `Array<[String: AnyObject]>`
-//        let photos = jsonResult["photos"]!
-//        return photos["photo"] as? [[String: AnyObject]]
-//    }
+    func reload(completion: ([Photographer]) -> Void) {
+        photographers.removeAll()
+        fetch(completion)
+    }
 
     private func loadImagesFromFlickrArray(photos: [[String: AnyObject]]) {
         for photo in photos {
@@ -94,6 +83,5 @@ class FlickrModel {
             photosBelongsTo.append(newPhoto)
             photographers.append(Photographer(name: photographer, photos: photosBelongsTo))
         }
-        NSNotificationCenter.defaultCenter().postNotificationName(FlickrInfoDownloaded, object: self)
     }
 }

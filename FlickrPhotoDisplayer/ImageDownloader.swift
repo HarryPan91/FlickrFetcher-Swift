@@ -46,10 +46,10 @@ class ImageDownloader {
             }
 
             getDataFromURL(URL) { (data, response, error)  in
+                guard let data = data where error == nil, let image = UIImage(data: data) else {
+                    return
+                }
                 dispatch_async(dispatch_get_main_queue()) { () -> Void in
-                    guard let data = data where error == nil, let image = UIImage(data: data) else {
-                        return
-                    }
                     imageCacher.setObject(image, forKey: URL.absoluteString)
 
                     for completion in imageWithCallbackBlocks[URL.absoluteString]! {

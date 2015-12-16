@@ -48,7 +48,13 @@
                             <outlet property="delegate" destination="kyK-iI-mZ4" id="ChB-1Q-F6n"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="ZjU-mD-6FL"/>
+                    <navigationItem key="navigationItem" id="ZjU-mD-6FL">
+                        <barButtonItem key="rightBarButtonItem" systemItem="refresh" id="8ky-21-vwM">
+                            <connections>
+                                <action selector="refresh:" destination="kyK-iI-mZ4" id="OqC-4H-8uY"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="unT-x1-IJ6" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

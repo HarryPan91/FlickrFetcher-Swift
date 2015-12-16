@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import OHHTTPStubs
 @testable import FlickrPhotoDisplayer
 
 class FlickrPhotoDisplayerTests: XCTestCase {
@@ -18,16 +19,11 @@ class FlickrPhotoDisplayerTests: XCTestCase {
 
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
+        OHHTTPStubs.removeAllStubs()
         super.tearDown()
     }
 
-    func testFlickrModelFetchMethod() {
-
-        class Flickr: FlickrModel {
-            override init() {
-            }
-        }
-
+    func testFlickrModelReloadMethod() {
 
         class MockSession: NSURLSession {
             var completionHandler: ((NSData!, NSURLResponse!, NSError!) -> Void)?
@@ -58,18 +54,95 @@ class FlickrPhotoDisplayerTests: XCTestCase {
             }
         }
 
+        class Flickr: FlickrModel {
+            override init() {
+            }
+        }
 
+        let responseArrived = self.expectationWithDescription("response of async request has arrived")
         let model = Flickr()
+        var photographers = [Photographer]()
 
         let jsonData = try! NSJSONSerialization.dataWithJSONObject(["photos": ""], options: .PrettyPrinted)
 
         let urlResponse = NSHTTPURLResponse(URL: NSURL(string: "https://snaptee.co/")!, statusCode: 200, HTTPVersion: nil, headerFields: nil)
 
         MockSession.mockResponse = (jsonData, urlResponse: urlResponse, error: nil)
-        model.mySession = MockSession.self
-        model.fetch()
-        XCTAssertNotNil(model.photographers)
-
+        model.session = MockSession()
+        model.reload { (p) -> Void in
+            photographers = p
+            responseArrived.fulfill()
+        }
+        self.waitForExpectationsWithTimeout(30.0) { (error) -> Void in
+            XCTAssertEqual(photographers.count, 0)
+        }
     }
+
+    func testFlickrModelFetchMethodWithOHHTTPStubs() {
+        let model = FlickrModel()
+        var photographers = [Photographer]()
+        let responseArrived = self.expectationWithDescription("response of async request has arrived")
+
+        let s = NSBundle.mainBundle().pathForResource("photos", ofType: "json")
+        stub(isHost("api.flickr.com")) { _ in
+            let stubData = NSData(contentsOfFile: s!)
+            return OHHTTPStubsResponse(data: stubData!, statusCode:200, headers:nil)
+        }
+
+        model.fetch { (p) -> Void in
+            photographers = p
+            responseArrived.fulfill()
+        }
+
+        self.waitForExpectationsWithTimeout(30.0) { (error) -> Void in
+            XCTAssertEqual(photographers.count, 4)
+        }
+    }
+
+    func testFlickrModelFetchMethodErrorWithOHHTTPStubs() {
+        let model = FlickrModel()
+        var photographers = [Photographer]()
+        let responseArrived = self.expectationWithDescription("response of async request has arrived")
+
+        let s = NSBundle.mainBundle().pathForResource("photos", ofType: "json")
+        stub(isHost("api.flickr.com")) { _ in
+            let stubData = NSData(contentsOfFile: s!)
+            return OHHTTPStubsResponse(data: stubData!, statusCode:404, headers:nil)
+        }
+
+        model.fetch { (p) -> Void in
+            photographers = p
+            responseArrived.fulfill()
+        }
+
+        self.waitForExpectationsWithTimeout(30.0) { (error) -> Void in
+            XCTAssertEqual(photographers.count, 4)
+        }
+    }
+
+    func testFlickrModelFetchMethodEmptyJSONWithOHHTTPStubs() {
+        let model = FlickrModel()
+        var photographers = [Photographer]()
+        let responseArrived = self.expectationWithDescription("response of async request has arrived")
+
+        stub(isHost("api.flickr.com")) { _ in
+            let stubData = "".dataUsingEncoding(NSUTF8StringEncoding)
+            return OHHTTPStubsResponse(data: stubData!, statusCode:200, headers:nil)
+        }
+
+        model.fetch { (p) -> Void in
+            photographers = p
+            responseArrived.fulfill()
+        }
+
+        self.waitForExpectationsWithTimeout(30.0) { (error) -> Void in
+            XCTAssertEqual(photographers.count, 0)
+        }
+    }
+
+//    func testDownNetworkConnect() {
+//        let notConnectedError = NSError(domain:NSURLErrorDomain, code:Int(CFNetworkErrors.CFURLErrorNotConnectedToInternet.rawValue), userInfo:nil)
+//        return OHHTTPStubsResponse(error:notConnectedError)
+//    }
 
 }

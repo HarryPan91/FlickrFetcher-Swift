@@ -30,6 +30,8 @@ class FlickrPhotoDisplayerUITests: XCTestCase {
     }
     
     func testExample() {
-
+        XCUIApplication().navigationBars["FlickrFetcher"].buttons["Refresh"].tap()
+        
+        
     }
 }

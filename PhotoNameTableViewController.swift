@@ -10,12 +10,19 @@ import UIKit
 
 class PhotoNameTableViewController: UITableViewController {
 
-    let model = FlickrModel()
+    private let model = FlickrModel()
+    private var photographers = [Photographer]()
     // REVIEW: For `UIView`, you can try to use `lazy` to make them load on request
     lazy var spinner = UIActivityIndicatorView.init(frame: CGRectMake(0, 0, 50, 50))
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        model.fetch { (photographers) -> Void in
+            self.photographers = photographers
+            self.tableView.reloadData()
+            self.spinner.stopAnimating()
+        }
 
         self.title = "FlickrFetcher"
 
@@ -34,16 +41,21 @@ class PhotoNameTableViewController: UITableViewController {
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         spinner.center = CGPointMake(UIScreen.mainScreen().bounds.size.width / 2, UIScreen.mainScreen().bounds.size.height / 2)
         appDelegate.window?.addSubview(spinner)
-
-        // REVIEW: When do you remove the observer??
-        NSNotificationCenter.defaultCenter().addObserverForName(FlickrInfoDownloaded, object: nil, queue: nil) { (note: NSNotification) -> Void in
-            self.tableView.reloadData()
-            self.spinner.stopAnimating()
-            self.spinner.removeFromSuperview()
-            NSNotificationCenter.defaultCenter().removeObserver(self)
-        }
     }
 
+    @IBAction func refresh(sender: UIBarButtonItem) {
+        spinner.startAnimating()
+        photographers.removeAll()
+        tableView.reloadData()
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        appDelegate.window?.userInteractionEnabled = false
+        model.reload { (photographers) -> Void in
+            self.photographers = photographers
+            self.spinner.stopAnimating()
+            self.tableView.reloadData()
+            appDelegate.window?.userInteractionEnabled = true
+        }
+    }
 
     // MARK: - Table view data source
 
@@ -54,7 +66,7 @@ class PhotoNameTableViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return model.photographers.count
+        return photographers.count
     }
 
 
@@ -63,7 +75,7 @@ class PhotoNameTableViewController: UITableViewController {
 
         // Configure the cell...
         // REVIEW: Should be an array of `Photographer` object  ???
-        let photographer = model.photographers[indexPath.row]
+        let photographer = photographers[indexPath.row]
         cell.textLabel!.text = "Owner: \(photographer.name)"
         cell.detailTextLabel!.text = "have \(photographer.photos.count) photos"
 
@@ -117,14 +129,9 @@ class PhotoNameTableViewController: UITableViewController {
         if segue.identifier == "ShowPhotosSegue" {
             if segue.destinationViewController.isKindOfClass(PhotosCollectionViewController) {
                 let photosView = segue.destinationViewController as! PhotosCollectionViewController
-                let photographer = model.photographers[tableView.indexPathForSelectedRow!.row]
+                let photographer = photographers[tableView.indexPathForSelectedRow!.row]
                 photosView.title = "\(photographer.name)'s Job"
                 photosView.photos = photographer.photos
-//                let photographerName = ImageDownloader.imageCacher.objectForKey(photographer.name)
-//                if photographerName == nil {
-//                    ImageDownloader.imageCacher.removeAllObjects()
-//                    ImageDownloader.imageCacher.setObject(photographer.name, forKey: photographer.name)
-//                }
             }
         }
     }
